@@ -79,7 +79,7 @@ case class CreateDataSourceTableCommand(table: CatalogTable, ignoreIfExists: Boo
         className = table.provider.get,
         bucketSpec = table.bucketSpec,
         options = table.storage.properties ++ pathOption,
-        // As discussed in SPARK-19583, we don't check if the location is existed
+        // As discussed in SPARK-19583, we don't check if the location exists
         catalogTable = Some(tableWithDefaultOptions))
         .resolveRelation(checkFilesExist = false,
           forceNullable = !sessionState.conf.getConf(SQLConf.FILE_SOURCE_INSERT_ENFORCE_NOT_NULL))
@@ -97,7 +97,7 @@ case class CreateDataSourceTableCommand(table: CatalogTable, ignoreIfExists: Boo
 
     val newTable = dataSource match {
       // Since Spark 2.1, we store the inferred schema of data source in metastore, to avoid
-      // inferring the schema again at read path. However if the data source has overlapped columns
+      // inferring the schema again at read path. However, if the data source has overlapped columns
       // between data and partition schema, we can't store it in metastore as it breaks the
       // assumption of table schema. Here we fallback to the behavior of Spark prior to 2.1, store
       // empty schema in metastore and infer it at runtime. Note that this also means the new
@@ -161,7 +161,7 @@ case class CreateDataSourceTableAsSelectCommand(
 
     if (sessionState.catalog.tableExists(tableIdentWithDB)) {
       assert(mode != SaveMode.Overwrite,
-        s"Expect the table $tableName has been dropped when the save mode is Overwrite")
+        s"The table $tableName cannot be saved since it already exists. Drop it first or set the save mode to Overwrite.")
 
       if (mode == SaveMode.ErrorIfExists) {
         throw QueryCompilationErrors.tableAlreadyExistsError(tableName)
